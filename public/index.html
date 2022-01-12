@@ -1,8 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
+    <script>
+      function onGoogleSignIn(googleUser) {
+        const profile = googleUser.getBasicProfile();
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: profile.getId(),
+            name: profile.getName(),
+            givenName: profile.getGivenName(),
+            familyName: profile.getFamilyName(),
+            image: profile.getImageUrl(),
+            email: profile.getEmail(),
+            authToken: googleUser.getAuthResponse().id_token
+          })
+        );
+        window.location.reload();
+      }
+      function onLoad() {
+        gapi.load("auth2", function () {
+          gapi.auth2.init();
+        });
+      }
+    </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta
+      name="google-signin-client_id"
+      content="1008830332507-mqg1ku0qqbf4tkejqd7rvt37f367j55i.apps.googleusercontent.com"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
