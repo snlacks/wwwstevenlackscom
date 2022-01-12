@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useContext, useState } from "react";
-import { Card, Col, Row } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import styled from "styled-components/macro";
 import { Conditional } from "./Conditional";
 import { UserContext } from "./UserContext";
