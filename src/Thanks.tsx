@@ -16,6 +16,7 @@ export const Thanks = () => {
       </p>
       <StyledList>
         <li>Tyler Hedden</li>
+        <li>Ron "Coach P." Perisee</li>
         <li>Ben Stark</li>
         <li>Daniel Lacks</li>
       </StyledList>

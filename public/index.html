@@ -3,25 +3,42 @@
   <head>
     <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
     <script>
-      function onGoogleSignIn(googleUser) {
-        const profile = googleUser.getBasicProfile();
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: profile.getId(),
-            name: profile.getName(),
-            givenName: profile.getGivenName(),
-            familyName: profile.getFamilyName(),
-            image: profile.getImageUrl(),
-            email: profile.getEmail(),
-            authToken: googleUser.getAuthResponse().id_token
-          })
-        );
-        window.location.reload();
-      }
+      (async () => {
+          const hasToken = () => {
+            try {
+              return !!JSON.parse(localStorage.getItem("user")).authToken
+            } catch {
+              return false;
+            }
+          }
+        
+        if (hasToken()) {
+          const f = await fetch(
+            "%REACT_APP_LAMBDA_URL%/default/verifyGoogleUser",
+            {
+              method: "POST",
+              mode: "cors",
+              credentials: "include",
+              body: JSON.stringify({
+                token: JSON.parse(localStorage.getItem("user")).authToken,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (!f.ok) {
+            localStorage.removeItem("user");
+          }
+        }
+      })();
       function onLoad() {
         gapi.load("auth2", function () {
           gapi.auth2.init();
+          if (gapi.auth2.isSignedIn.get() === false) {
+            localStorage.removeItem("user");
+            widnow.location.reload();
+          }
         });
       }
     </script>

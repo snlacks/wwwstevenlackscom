@@ -6,7 +6,6 @@ import { Conditional } from "./Conditional";
 import { UserContext } from "./UserContext";
 
 declare const gapi: any;
-declare const onGoogleSignIn: any;
 
 const buttonWidth = 184;
 
@@ -40,6 +39,23 @@ const Error = styled.div`
   text-align: center;
   padding-top: var(--half-spacing-px);
 `;
+
+function onGoogleSignIn(googleUser) {
+  const profile = googleUser.getBasicProfile();
+  localStorage.setItem(
+    "user",
+    JSON.stringify({
+      id: profile.getId(),
+      name: profile.getName(),
+      givenName: profile.getGivenName(),
+      familyName: profile.getFamilyName(),
+      image: profile.getImageUrl(),
+      email: profile.getEmail(),
+      authToken: googleUser.getAuthResponse().id_token,
+    })
+  );
+  window.location.reload();
+}
 
 export const LoginControls = () => {
   const userHelper = useContext(UserContext);
