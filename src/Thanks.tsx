@@ -10,7 +10,7 @@ const StyledList = styled.ul`
 export const Thanks = () => {
   const { isLoggedIn } = useContext(UserContext);
   return (
-    <Conditional condition={isLoggedIn}>
+    <Conditional condition={isLoggedIn()}>
       <p>
         I'd like to thank the following people for help with advice and testing.
       </p>

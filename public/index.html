@@ -4,14 +4,14 @@
     <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
     <script>
       (async () => {
-          const hasToken = () => {
-            try {
-              return !!JSON.parse(localStorage.getItem("user")).authToken
-            } catch {
-              return false;
-            }
+        const hasToken = () => {
+          try {
+            return !!JSON.parse(localStorage.getItem("user")).authToken;
+          } catch {
+            return false;
           }
-        
+        };
+
         if (hasToken()) {
           const f = await fetch(
             "%REACT_APP_LAMBDA_URL%/default/verifyGoogleUser",
@@ -21,14 +21,16 @@
               credentials: "include",
               body: JSON.stringify({
                 token: JSON.parse(localStorage.getItem("user")).authToken,
+                log: true
               }),
               headers: {
-                "Content-Type": "application/json",
-              },
+                "Content-Type": "application/json"
+              }
             }
           );
           if (!f.ok) {
             localStorage.removeItem("user");
+            window.location.reload();
           }
         }
       })();
@@ -37,7 +39,7 @@
           gapi.auth2.init();
           if (gapi.auth2.isSignedIn.get() === false) {
             localStorage.removeItem("user");
-            widnow.location.reload();
+            window.location.reload();
           }
         });
       }

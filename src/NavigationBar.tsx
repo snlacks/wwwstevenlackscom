@@ -9,14 +9,14 @@ const SNavbar = styled(Navbar)({
   paddingLeft: "1rem",
   paddingRight: "1rem",
   "& .nav-link": {
-    color: "#fff",
-  },
+    color: "#fff"
+  }
 });
 
 const paths = {
   home: "/",
   login: "/login",
-  acknowledgements: "/thanks",
+  acknowledgements: "/thanks"
 };
 
 export const NavigationBar = () => {
@@ -31,15 +31,17 @@ export const NavigationBar = () => {
           <Conditional condition={!pathname.match(/\/$/)}>
             <Nav.Link href={paths.home}>Home</Nav.Link>
           </Conditional>
-          <Conditional condition={!pathname.match(paths.login) && !isLoggedIn}>
+          <Conditional
+            condition={!pathname.match(paths.login) && !isLoggedIn()}
+          >
             <Nav.Link href={paths.login}>Sign in</Nav.Link>
           </Conditional>
           <Conditional
-            condition={!pathname.match(paths.acknowledgements) && isLoggedIn}
+            condition={!pathname.match(paths.acknowledgements) && isLoggedIn()}
           >
             <Nav.Link href="/thanks">Acknowledgements</Nav.Link>
           </Conditional>
-          <Conditional condition={!pathname.match(paths.login) && isLoggedIn}>
+          <Conditional condition={!pathname.match(paths.login) && isLoggedIn()}>
             <Nav.Link href={paths.login}>Log out</Nav.Link>
           </Conditional>
         </Navbar.Collapse>

@@ -51,7 +51,7 @@ function onGoogleSignIn(googleUser) {
       familyName: profile.getFamilyName(),
       image: profile.getImageUrl(),
       email: profile.getEmail(),
-      authToken: googleUser.getAuthResponse().id_token,
+      authToken: googleUser.getAuthResponse().id_token
     })
   );
   window.location.reload();
@@ -67,7 +67,7 @@ export const LoginControls = () => {
       width: buttonWidth,
       longtitle: true,
       onsuccess: onGoogleSignIn,
-      onfailure: () => setError("Problem with Sign in"),
+      onfailure: () => setError("Problem with Sign in")
     });
   });
 
@@ -85,7 +85,7 @@ export const LoginControls = () => {
 
   return (
     <Card>
-      <Conditional condition={!userHelper.isLoggedIn}>
+      <Conditional condition={!userHelper.isLoggedIn()}>
         <Card.Body>
           <div id="my-signin2">Sign In</div>
           <p>
@@ -94,7 +94,7 @@ export const LoginControls = () => {
           </p>
         </Card.Body>
       </Conditional>
-      <Conditional condition={userHelper.isLoggedIn}>
+      <Conditional condition={userHelper.isLoggedIn()}>
         <Card.Body>
           <LogOutButton
             onClick={() =>
