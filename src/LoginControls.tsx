@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import { useContext, useState } from "react";
 import { Card } from "react-bootstrap";
+import { useSearchParams } from "react-router-dom";
 import styled from "styled-components/macro";
 import { Conditional } from "./Conditional";
+import { routes } from "./constants";
 import { UserContext } from "./UserContext";
 
 declare const gapi: any;
 
-const buttonWidth = 184;
+export const buttonWidth = 184;
 
 const LogOutButton = styled.button`
   margin-left: 12px;
@@ -40,37 +42,19 @@ const Error = styled.div`
   padding-top: var(--half-spacing-px);
 `;
 
-function onGoogleSignIn(googleUser) {
-  const profile = googleUser.getBasicProfile();
-  localStorage.setItem(
-    "user",
-    JSON.stringify({
-      id: profile.getId(),
-      name: profile.getName(),
-      givenName: profile.getGivenName(),
-      familyName: profile.getFamilyName(),
-      image: profile.getImageUrl(),
-      email: profile.getEmail(),
-      authToken: googleUser.getAuthResponse().id_token
-    })
-  );
-  window.location.reload();
-}
+export const useRedirectOnNotLoggedIn = (path: string) => {
+  const { isLoggedIn } = useContext(UserContext);
+  console.log(isLoggedIn())
+  if (!isLoggedIn()) {
+    console.log('navigating')
+    window.location.replace(`/login?redirect=${path}`);
+  }
+};
 
 export const LoginControls = () => {
   const userHelper = useContext(UserContext);
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    gapi.signin2.render("my-signin2", {
-      scope: "profile email",
-      width: buttonWidth,
-      longtitle: true,
-      onsuccess: onGoogleSignIn,
-      onfailure: () => setError("Problem with Sign in")
-    });
-  });
-
   useEffect(() => {
     let mounted = true;
     setTimeout(() => {
@@ -82,6 +66,28 @@ export const LoginControls = () => {
       mounted = false;
     };
   }, [setError]);
+
+  useEffect(() => {
+    gapi.signin2.render("my-signin2", {
+      scope: "profile email",
+      width: buttonWidth,
+      longtitle: true,
+      onsuccess: (googleUser) => {
+        const profile = googleUser.getBasicProfile();
+        const tempUser = {
+          id: profile.getId(),
+          name: profile.getName(),
+          givenName: profile.getGivenName(),
+          familyName: profile.getFamilyName(),
+          image: profile.getImageUrl(),
+          email: profile.getEmail(),
+          authToken: googleUser.getAuthResponse().id_token
+        };
+        localStorage.setItem("user", JSON.stringify(tempUser));
+        window.location.replace(searchParams.get("redirect") || routes.home)
+      }
+    });
+  });
 
   return (
     <Card>

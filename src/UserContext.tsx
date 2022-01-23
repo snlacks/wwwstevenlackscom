@@ -13,6 +13,7 @@ export type User = {
 export type UserHelper = {
   getUserData: () => User | undefined;
   signOut: (errorCallback) => Promise<void>;
+  setUser: (user: User) => void;
   isLoggedIn: () => boolean;
 };
 
@@ -20,5 +21,6 @@ export const userHelper = {};
 export const UserContext = createContext<UserHelper>({
   getUserData: () => undefined,
   signOut: () => new Promise((resolve) => resolve()),
+  setUser: () => undefined,
   isLoggedIn: () => false
 });

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Container, Row } from "react-bootstrap";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import styled from "styled-components/macro";
+import { routes } from "./constants";
 import { Home } from "./Home";
 import { Login } from "./Login";
 import { NavigationBar } from "./NavigationBar";
@@ -23,7 +24,7 @@ const hasToken: () => boolean = () => {
 };
 
 const verify: () => Promise<any> = async () =>
-  fetch("%REACT_APP_LAMBDA_URL%/default/verifyGoogleUser", {
+  fetch(`${process.env.REACT_APP_LAMBDA_URL}/default/verifyGoogleUser`, {
     method: "POST",
     mode: "cors",
     credentials: "include",
@@ -46,59 +47,75 @@ const emptyUser = {
   authToken: ""
 };
 
+const getStorageUser = () =>
+  JSON.parse(localStorage.getItem("user") || "null") || emptyUser;
+
 const App = () => {
-  const [user, setUser] = useState<User>(
-    JSON.parse(localStorage.getItem("user") || "null") || emptyUser
-  );
+  const [user, setUser] = useState<User>(getStorageUser());
+
+  useEffect(() => {
+    let mounted = true;
+    let interval = setInterval(() => {
+      if (getStorageUser()?.authToken !== user.authToken && mounted) {
+        setUser(getStorageUser());
+      }
+    }, 2000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  });
   useEffect(() => {
     (async () => {
       if (hasToken()) {
         const f = await verify();
-        if (!f.ok) {
+        if (user && !f.ok) {
           localStorage.removeItem("user");
           setUser(emptyUser);
         }
       }
     })();
     return () => {};
-  }, []);
+  }, [user]);
 
+  const userContextValue = useMemo(
+    () => ({
+      getUserData: () => user,
+      signOut: async (errorCallback) => {
+        await gapi.load("auth2", async function () {
+          await gapi.auth2.init();
+          const auth2 = gapi.auth2.getAuthInstance();
+
+          auth2
+            .disconnect()
+            .then(function () {
+              console.log("User signed out.");
+              localStorage.removeItem("user");
+              setUser(emptyUser);
+            })
+            .catch(errorCallback);
+        });
+      },
+      setUser,
+      isLoggedIn: () => !!user.authToken
+    }),
+    [user, setUser]
+  );
   return (
-    <UserContext.Provider
-      value={{
-        getUserData: () => user,
-        signOut: async (errorCallback) => {
-          await gapi.load("auth2", async function () {
-            await gapi.auth2.init();
-            const auth2 = gapi.auth2.getAuthInstance();
-
-            auth2
-              .signOut()
-              .then(function () {
-                console.log("User signed out.");
-                localStorage.removeItem("user");
-                setUser(emptyUser);
-                window.location.reload();
-              })
-              .catch(errorCallback);
-          });
-        },
-        isLoggedIn: () => !!user.authToken
-      }}
-    >
-      <BrowserRouter>
+    <BrowserRouter>
+      <UserContext.Provider value={userContextValue}>
         <NavigationBar />
         <SContainer>
           <Row>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />}></Route>
-              <Route path="/thanks" element={<Thanks />}></Route>
+              <Route path={routes.home} element={<Home />} />
+              <Route path={routes.login} element={<Login />}></Route>
+              <Route path={routes.thanks} element={<Thanks />}></Route>
             </Routes>
           </Row>
         </SContainer>
-      </BrowserRouter>
-    </UserContext.Provider>
+      </UserContext.Provider>
+    </BrowserRouter>
   );
 };
 

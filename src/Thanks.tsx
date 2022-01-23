@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
 import styled from "styled-components/macro";
 import { Conditional } from "./Conditional";
+import { useRedirectOnNotLoggedIn } from "./LoginControls";
 import { UserContext } from "./UserContext";
+import  { routes } from "./constants";
 
 const StyledList = styled.ul`
   list-style: none;
@@ -9,6 +11,7 @@ const StyledList = styled.ul`
 
 export const Thanks = () => {
   const { isLoggedIn } = useContext(UserContext);
+  useRedirectOnNotLoggedIn(routes.thanks);
   return (
     <Conditional condition={isLoggedIn()}>
       <p>
