@@ -24,18 +24,21 @@ const hasToken: () => boolean = () => {
 };
 
 const verify: () => Promise<any> = async () =>
-  fetch(`${process.env.REACT_APP_LAMBDA_URL}/default/verifyGoogleUser`, {
-    method: "POST",
-    mode: "cors",
-    credentials: "include",
-    body: JSON.stringify({
-      token: JSON.parse(localStorage.getItem("user") || "{}").authToken,
-      log: true
-    }),
-    headers: {
-      "Content-Type": "application/json"
+  fetch(
+    "https://1ko13eunlb.execute-api.us-east-2.amazonaws.com/default/verifyGoogleUser",
+    {
+      method: "POST",
+      mode: "cors",
+      credentials: "include",
+      body: JSON.stringify({
+        token: JSON.parse(localStorage.getItem("user") || "{}").authToken,
+        log: true
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
     }
-  });
+  );
 
 const emptyUser = {
   id: "",
